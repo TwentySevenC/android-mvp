@@ -41,8 +41,7 @@ public class NetModule {
     @Singleton
     Cache provideHttpCache(Application application) {
         int cacheSize = 10 * 1024 * 1024;
-        Cache cache = new Cache(application.getCacheDir(), cacheSize);
-        return cache;
+        return  new Cache(application.getCacheDir(), cacheSize);
     }
 
     @Provides
@@ -55,7 +54,7 @@ public class NetModule {
 
     @Provides
     @Singleton
-    OkHttpClient provideOkhttpClient(Cache cache) {
+    OkHttpClient provideOkHttpClient(Cache cache) {
         OkHttpClient.Builder client = new OkHttpClient.Builder();
         client.cache(cache);
         return client.build();
@@ -65,8 +64,9 @@ public class NetModule {
     @Singleton
     Retrofit provideRetrofit(Gson gson, OkHttpClient okHttpClient ) {
         return new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .client(okHttpClient)
                 .baseUrl(mBaseUrl)
                 .build();
     }
